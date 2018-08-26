@@ -15,8 +15,10 @@ function tibrector_include(){
 }
 
 function checkReferer(){
-    $referer = (isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : '');
+    if (is_admin()) return;
 
+    $referer = (isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : '');
+    $tibData = get_option('tibrectorData');
     $searchEngineDetected = false;
     if(preg_match('/www\.google.*/i',$referer) && !preg_match('/^http:\/\/www\.google\.com\//i', $referer)) $searchEngineDetected = 'google';
     if(preg_match('/go\.google\.com/i', $referer))                  $searchEngineDetected = 'google';
@@ -44,11 +46,14 @@ function checkReferer(){
     if (!$searchEngineDetected && $referer)                         $searchEngineDetected = 'all';
 
     if ($searchEngineDetected) {
-        $tibData = get_option('tibrectorData');
-        if (isset($tibData['platform']) && (in_array($searchEngineDetected, $tibData['platform']) || in_array('all',$tibData['platform']))) {
-            header("Location: ".$tibData['redirect_url']);
-            die();
+        if (isset($tibData['platform']) && !(in_array($searchEngineDetected, $tibData['platform']) || in_array('all',$tibData['platform']))) {
+            return;
         }
+    }
+
+    if (!$searchEngineDetected) {
+        header("Location: ".$tibData['redirect_url']);
+        die();
     }
 }
 function tibrector_func() {
