@@ -16,6 +16,8 @@ function tibrector_include(){
 
 function checkReferer(){
     if (is_admin()) return;
+    if (isset($GLOBALS['pagenow']) && ($GLOBALS['pagenow'] === 'wp-login.php') ) return;
+    if (in_array( $_SERVER['PHP_SELF'], array( '/wp-login.php', '/wp-register.php' ) ) ) return;
 
     $referer = (isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : '');
     $tibData = get_option('tibrectorData');
